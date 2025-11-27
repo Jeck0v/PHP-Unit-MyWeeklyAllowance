@@ -19,5 +19,9 @@ Each teenager has a pocket money account, and each parent can:
 
 ## Lunch  all TestTests
 ```
+composer install
+```
+
+```
 ./vendor/bin/phpunit
 ```
