@@ -25,6 +25,9 @@ composer install
 ```
 ./vendor/bin/phpunit
 ```
+```
+./vendor/bin/phpunit --coverage-text
+```
 
 ## Swagger documentation (used like a frontend)
 ```
