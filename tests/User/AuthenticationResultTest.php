@@ -27,7 +27,7 @@ final class AuthenticationResultTest extends TestCase
 
         $this->assertTrue($result->isSuccessful());
         $this->assertSame("jwt.token.here", $result->getToken());
-        $this->assertSame("user123", $result->getUserId());
+        $this->assertSame("jeck0v", $result->getUserId());
         $this->assertSame("test@example.com", $result->getEmail());
     }
 }
