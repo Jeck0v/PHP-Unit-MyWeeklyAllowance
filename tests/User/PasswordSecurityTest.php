@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace MyWeeklyAllowance\Tests\User;
 
+use MyWeeklyAllowance\Repository\UserRepository;
 use MyWeeklyAllowance\Security\PasswordHasher;
 use MyWeeklyAllowance\Security\PasswordEncryptor;
 use MyWeeklyAllowance\User;
@@ -18,6 +19,11 @@ use PHPUnit\Framework\TestCase;
 #[Group("password")]
 final class PasswordSecurityTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        UserRepository::clear();
+    }
+
     /**
      * Password i s hashed with Argon2id
      * (PASSWORD_ARGON2ID)

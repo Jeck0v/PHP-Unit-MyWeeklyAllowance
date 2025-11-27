@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace MyWeeklyAllowance\Tests\User;
 
 use InvalidArgumentException;
+use MyWeeklyAllowance\Repository\UserRepository;
 use MyWeeklyAllowance\Security\AuthenticationService;
 use MyWeeklyAllowance\User;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -17,6 +18,12 @@ use PHPUnit\Framework\TestCase;
 #[Group("login")]
 final class UserAuthenticationTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        UserRepository::clear();
+        AuthenticationService::clearFailedAttempts();
+    }
+
     /**
      * User can authenticate with correct email and password
      * Successful login returns a JWT token

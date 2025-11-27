@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace MyWeeklyAllowance\Tests\User;
 
 use InvalidArgumentException;
+use MyWeeklyAllowance\Repository\UserRepository;
 use MyWeeklyAllowance\User;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -16,6 +17,11 @@ use PHPUnit\Framework\TestCase;
 #[Group("validation")]
 final class UserRegistrationValidationTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        UserRepository::clear();
+    }
+
     /**
      * First name cannot be empty
      * Validation: first name is mandatory

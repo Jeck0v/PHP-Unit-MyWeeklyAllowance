@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace MyWeeklyAllowance\Tests\User;
 
+use MyWeeklyAllowance\Repository\UserRepository;
 use MyWeeklyAllowance\Security\JWTManager;
 use MyWeeklyAllowance\User;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -16,6 +17,11 @@ use PHPUnit\Framework\TestCase;
 #[Group("jwt")]
 final class JWTGenerationTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        UserRepository::clear();
+    }
+
     /**
      * A JWT token can be generated for a user
      * Generate a valid JWT token containing user information
@@ -95,7 +101,7 @@ final class JWTGenerationTest extends TestCase
         $payload = $jwtManager->decode($token);
 
         $this->assertArrayHasKey("email", $payload);
-        $this->assertSame("alice@example.com", $payload["email"]);
+        $this->assertSame("bob@example.com", $payload["email"]);
     }
 
     /**

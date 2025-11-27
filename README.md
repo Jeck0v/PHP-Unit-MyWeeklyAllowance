@@ -25,3 +25,9 @@ composer install
 ```
 ./vendor/bin/phpunit
 ```
+
+## Swagger documentation (used like a frontend)
+```
+cd public
+php -S localhost:9462 router.php
+```

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace MyWeeklyAllowance\Tests\User;
 
+use MyWeeklyAllowance\Repository\UserRepository;
 use MyWeeklyAllowance\User;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
@@ -14,6 +15,11 @@ use PHPUnit\Framework\TestCase;
 #[Group("registration")]
 final class UserRegistrationTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        UserRepository::clear();
+    }
+
     /**
      * A user can be registered with valid credentials
      * User registration: firstName, lastName, email, and password
