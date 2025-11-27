@@ -3,3 +3,6 @@
 /.phpunit.cache/
 /.coverage/
 .DS_Store
+
+# SQLite database
+/data/

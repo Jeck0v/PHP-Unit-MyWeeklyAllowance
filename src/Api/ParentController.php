@@ -5,17 +5,21 @@ declare(strict_types=1);
 namespace MyWeeklyAllowance\Api;
 
 use MyWeeklyAllowance\ParentAccount;
-use MyWeeklyAllowance\TeenagerAccount;
+use MyWeeklyAllowance\Repository\ParentRepository;
+use MyWeeklyAllowance\Repository\TeenagerRepository;
 use OpenApi\Attributes as OA;
 
 #[OA\Tag(name: 'Parent', description: 'Parent account management endpoints')]
 final class ParentController
 {
-    /** @var array<string, ParentAccount> */
-    private static array $parents = [];
+    private ParentRepository $parentRepo;
+    private TeenagerRepository $teenagerRepo;
 
-    /** @var array<string, TeenagerAccount> */
-    private static array $teenagers = [];
+    public function __construct()
+    {
+        $this->parentRepo = new ParentRepository();
+        $this->teenagerRepo = new TeenagerRepository();
+    }
 
     #[OA\Post(
         path: '/api/parent',
@@ -47,7 +51,7 @@ final class ParentController
     public function createParent(array $data): array
     {
         $parent = new ParentAccount($data['name']);
-        self::$parents[$parent->getId()] = $parent;
+        $this->parentRepo->save($parent);
 
         return [
             'id' => $parent->getId(),
@@ -94,14 +98,17 @@ final class ParentController
     )]
     public function createTeenagerAccount(string $parentId, array $data): array
     {
-        $parent = self::$parents[$parentId] ?? null;
+        $parent = $this->parentRepo->findById($parentId);
 
         if ($parent === null) {
             throw new \InvalidArgumentException('Parent not found');
         }
 
         $teenager = $parent->createAccountFor($data['teenagerName']);
-        self::$teenagers[$teenager->getParentId() . '_' . $teenager->getTeenagerName()] = $teenager;
+        $this->teenagerRepo->save($teenager);
+
+        // Re-save parent (contains updated $accounts array)
+        $this->parentRepo->save($parent);
 
         return [
             'teenagerName' => $teenager->getTeenagerName(),
@@ -142,7 +149,7 @@ final class ParentController
     )]
     public function getAccounts(string $parentId): array
     {
-        $parent = self::$parents[$parentId] ?? null;
+        $parent = $this->parentRepo->findById($parentId);
 
         if ($parent === null) {
             throw new \InvalidArgumentException('Parent not found');
@@ -200,19 +207,22 @@ final class ParentController
     )]
     public function deposit(string $parentId, array $data): array
     {
-        $parent = self::$parents[$parentId] ?? null;
+        $parent = $this->parentRepo->findById($parentId);
 
         if ($parent === null) {
             throw new \InvalidArgumentException('Parent not found');
         }
 
-        $teenager = self::$teenagers[$parentId . '_' . $data['teenagerName']] ?? null;
+        $teenager = $this->teenagerRepo->findByParentAndName($parentId, $data['teenagerName']);
 
         if ($teenager === null) {
             throw new \InvalidArgumentException('Teenager not found');
         }
 
         $parent->depositMoney($teenager, $data['amount']);
+
+        // Re-save teenager (balance modified)
+        $this->teenagerRepo->save($teenager);
 
         return [
             'newBalance' => $teenager->getBalance(),
@@ -258,19 +268,22 @@ final class ParentController
     )]
     public function recordExpense(string $parentId, array $data): array
     {
-        $parent = self::$parents[$parentId] ?? null;
+        $parent = $this->parentRepo->findById($parentId);
 
         if ($parent === null) {
             throw new \InvalidArgumentException('Parent not found');
         }
 
-        $teenager = self::$teenagers[$parentId . '_' . $data['teenagerName']] ?? null;
+        $teenager = $this->teenagerRepo->findByParentAndName($parentId, $data['teenagerName']);
 
         if ($teenager === null) {
             throw new \InvalidArgumentException('Teenager not found');
         }
 
         $parent->recordExpense($teenager, $data['amount'], $data['description']);
+
+        // Re-save teenager (balance and history modified)
+        $this->teenagerRepo->save($teenager);
 
         return [
             'newBalance' => $teenager->getBalance(),
@@ -315,19 +328,22 @@ final class ParentController
     )]
     public function setWeeklyAllowance(string $parentId, array $data): array
     {
-        $parent = self::$parents[$parentId] ?? null;
+        $parent = $this->parentRepo->findById($parentId);
 
         if ($parent === null) {
             throw new \InvalidArgumentException('Parent not found');
         }
 
-        $teenager = self::$teenagers[$parentId . '_' . $data['teenagerName']] ?? null;
+        $teenager = $this->teenagerRepo->findByParentAndName($parentId, $data['teenagerName']);
 
         if ($teenager === null) {
             throw new \InvalidArgumentException('Teenager not found');
         }
 
         $parent->setWeeklyAllowance($teenager, $data['amount']);
+
+        // Re-save teenager (allowance modified)
+        $this->teenagerRepo->save($teenager);
 
         return [
             'weeklyAllowance' => $teenager->getWeeklyAllowance(),

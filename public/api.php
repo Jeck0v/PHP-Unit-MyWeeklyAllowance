@@ -7,9 +7,24 @@ require_once __DIR__ . '/../vendor/autoload.php';
 use MyWeeklyAllowance\Api\AuthController;
 use MyWeeklyAllowance\Api\ParentController;
 use MyWeeklyAllowance\Api\TeenagerController;
+use MyWeeklyAllowance\Database\Database;
 
 // Set JSON response header
 header('Content-Type: application/json');
+
+// Initialize SQLite database
+try {
+    Database::connect();
+} catch (\Throwable $e) {
+    http_response_code(500);
+    echo json_encode([
+        'error' => 'Database initialization failed',
+        'message' => $e->getMessage(),
+        'file' => $e->getFile(),
+        'line' => $e->getLine()
+    ]);
+    exit;
+}
 
 // Get request method and URI
 $method = $_SERVER['REQUEST_METHOD'];
@@ -119,6 +134,14 @@ try {
 
 } catch (\Throwable $e) {
     // Handle unexpected errors
+    error_log("API Error: " . $e->getMessage());
+    error_log("Stack trace: " . $e->getTraceAsString());
+
     http_response_code(500);
-    echo json_encode(['error' => 'Internal server error', 'message' => $e->getMessage()]);
+    echo json_encode([
+        'error' => 'Internal server error',
+        'message' => $e->getMessage(),
+        'file' => $e->getFile(),
+        'line' => $e->getLine()
+    ]);
 }

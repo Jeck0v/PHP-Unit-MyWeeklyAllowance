@@ -4,21 +4,17 @@ declare(strict_types=1);
 
 namespace MyWeeklyAllowance\Api;
 
-use MyWeeklyAllowance\TeenagerAccount;
+use MyWeeklyAllowance\Repository\TeenagerRepository;
 use OpenApi\Attributes as OA;
 
 #[OA\Tag(name: 'Teenager', description: 'Teenager account operations')]
 final class TeenagerController
 {
-    /** @var array<string, TeenagerAccount> */
-    private static array $teenagers = [];
+    private TeenagerRepository $teenagerRepo;
 
-    /**
-     * Register a teenager account for API access
-     */
-    public static function registerTeenager(string $key, TeenagerAccount $account): void
+    public function __construct()
     {
-        self::$teenagers[$key] = $account;
+        $this->teenagerRepo = new TeenagerRepository();
     }
 
     #[OA\Get(
@@ -56,7 +52,7 @@ final class TeenagerController
     )]
     public function getBalance(string $parentId, string $teenagerName): array
     {
-        $teenager = self::$teenagers[$parentId . '_' . $teenagerName] ?? null;
+        $teenager = $this->teenagerRepo->findByParentAndName($parentId, $teenagerName);
 
         if ($teenager === null) {
             throw new \InvalidArgumentException('Teenager not found');
@@ -107,7 +103,7 @@ final class TeenagerController
     )]
     public function getHistory(string $parentId, string $teenagerName): array
     {
-        $teenager = self::$teenagers[$parentId . '_' . $teenagerName] ?? null;
+        $teenager = $this->teenagerRepo->findByParentAndName($parentId, $teenagerName);
 
         if ($teenager === null) {
             throw new \InvalidArgumentException('Teenager not found');
@@ -151,7 +147,7 @@ final class TeenagerController
     )]
     public function applyWeeklyAllowance(string $parentId, string $teenagerName): array
     {
-        $teenager = self::$teenagers[$parentId . '_' . $teenagerName] ?? null;
+        $teenager = $this->teenagerRepo->findByParentAndName($parentId, $teenagerName);
 
         if ($teenager === null) {
             throw new \InvalidArgumentException('Teenager not found');
@@ -159,6 +155,9 @@ final class TeenagerController
 
         $allowanceAmount = $teenager->getWeeklyAllowance();
         $teenager->applyWeeklyAllowance();
+
+        // Re-save teenager (balance and history modified)
+        $this->teenagerRepo->save($teenager);
 
         return [
             'newBalance' => $teenager->getBalance(),
