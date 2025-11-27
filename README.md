@@ -1,4 +1,6 @@
 # PHP-Unit-MyWeeklyAllowance
+Arnaud Fischer WEB3
+
 Pocket money management module for teenagers (with TDD methodology)
 
 Objective: at least 85% code coverage
@@ -34,3 +36,4 @@ composer install
 cd public
 php -S localhost:9462 router.php
 ```
+
