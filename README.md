@@ -16,3 +16,8 @@ Each teenager has a pocket money account, and each parent can:
 - Phase 2 – Implementing the code (GREEN)
 - Phase 3 – Refactoring
 - Phase 4 – Verifying coverage
+
+## Lunch  all TestTests
+```
+./vendor/bin/phpunit
+```
